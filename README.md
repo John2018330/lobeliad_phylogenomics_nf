@@ -6,10 +6,10 @@ Making a nextflow pipeline to generate a coalescent species tree of Lobeliad tax
 Trimmomatic, FastQC, MultiQC??, HybPiper, MAFFT, trimAl, IQTree, Astral?
 
 ### Requirements
-'samples_list.txt': a list of all taxa or sample identifiers
-Raw read pairs '*_{1,2}.fastq': raw reads 
-'Angio353.fasta': fasta file containing Angiosperms 353 target sequences for target enrichment. Use for luk test data 
-'supercontig_baits.fasta': fasta file containing modified campanula baits used for assembly. Use for lobeliad data
+- 'samples_list.txt': a list of all taxa or sample identifiers
+- Raw read pairs '*_{1,2}.fastq': raw reads 
+- 'Angio353.fasta': fasta file containing Angiosperms 353 target sequences for target enrichment. Use for luk test data 
+- 'supercontig_baits.fasta': fasta file containing modified campanula baits used for assembly. Use for lobeliad data
 
 
 

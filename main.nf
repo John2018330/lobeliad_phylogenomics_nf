@@ -9,8 +9,10 @@
 /*
  * Required pipeline inputs and log introduction
  */
-params.reads = "$projectDir/data/luk_006_11_R{1,2}.fastq.gz"
+params.reads = "$projectDir/data/luk_006_11_{R1,R2}.fastq"
+params.adapter = "$projectDir/TruSeq3-PE.fa"
 //params.baits_file = ""
+//params.samples_list = "$projectDir/samples_list.txt"
 params.outdir = "results"
 
 log.info """\
@@ -32,18 +34,26 @@ log.info """\
  * (*_unpaired.fastq).  
  */
 process TRIMMOMATIC {
-    publishDir params.outdir
-    
+    publishDir "${params.outdir}/trimmed"
 
     input:
     tuple val(name), path(reads)
     
     output:
-    path "" 
+    tuple path(r1p), path(r1u), path(r2p), path(r2u)
 
     script:
+    r1p = ${name}+'_R1_paired.fastq'
+    r1u = ${name}+'_R1_unpaired.fastq'
+    r2p = ${name}+'_R2_paired.fastq'
+    r2u = ${name}+'_R2_unpaired.fastq'
+
     """
-    trimmomatic
+    trimmomatic PE -phred33 \
+    ${reads[0]} ${reads[1]} \
+    $r1p $r1u $r2p $r2u \
+    ILLUMINACLIP:$params.adapter:2:30:10 \
+    LEADING:3 TRAILING:3 SLIDINGWINDOW:5:20 MINLEN:36
     """
 }
 

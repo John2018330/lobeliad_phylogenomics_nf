@@ -9,14 +9,16 @@
 /*
  * Required pipeline inputs and log introduction
  */
-params.reads = ""
-params.baits_file = ""
+params.reads = "$projectDir/data/luk_006_11_R{1,2}.fastq.gz"
+//params.baits_file = ""
 params.outdir = "results"
 
 log.info """\
     ==========================
     - PHYLOGENOMICS WORKFLOW -
     ==========================
+    reads        : ${params.reads}
+    outdir       : ${params.outdir}
     """
     .stripIndent()
 
@@ -30,7 +32,7 @@ log.info """\
  * (*_unpaired.fastq).  
  */
 process TRIMMOMATIC {
-    publishDir ${params.outdir} + "trimmomatic"
+    publishDir params.outdir
     
 
     input:
@@ -41,7 +43,7 @@ process TRIMMOMATIC {
 
     script:
     """
-    
+    trimmomatic
     """
 }
 
@@ -58,10 +60,11 @@ process TRIMMOMATIC {
  * DEFINE WORKFLOW
  */
 workflow {
-    //reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
-    println ${params.outdir} + "trimmomatic"
+    reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
+    //println ${params.outdir} + "trimmomatic"
+    TRIMMOMATIC(reads_pairs_ch)
 }
-}
+
 
 
 

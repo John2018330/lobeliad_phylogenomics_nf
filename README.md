@@ -25,10 +25,10 @@ Trimmomatic, FastQC, MultiQC??, HybPiper, MAFFT, trimAl, IQTree, Astral?
 
 
 ## To Do
-- [ ] write trimmomatic rule
-- [ ] write concat unpaired rule
-- [ ] write fastqc rule
-- [ ] write multiqc rule
+- [ ] write trimmomatic process
+- [ ] write concat unpaired process
+- [ ] write fastqc process
+- [ ] write multiqc process
 - [ ] add astral to docker image
 - [ ] add all params to nextflow file
 - [ ] docker engine only, no docker desktop

@@ -13,7 +13,7 @@ params.reads = "$projectDir/data/luk_006_11_{R1,R2}.fastq"
 params.adapter = "$projectDir/TruSeq3-PE.fa"
 //params.baits_file = ""
 //params.samples_list = "$projectDir/samples_list.txt"
-params.outdir = "results"
+params.outdir = "$projectDir/results"
 
 log.info """\
     ==========================
@@ -42,19 +42,21 @@ process TRIMMOMATIC {
     output:
     tuple path(r1p), path(r1u), path(r2p), path(r2u)
 
-    script:
-    r1p = ${name}+'_R1_paired.fastq'
-    r1u = ${name}+'_R1_unpaired.fastq'
-    r2p = ${name}+'_R2_paired.fastq'
-    r2u = ${name}+'_R2_unpaired.fastq'
+    script: 
+    r1p = "${name}_R1_paired.fastq"
+    r1u = "${name}_R1_unpaired.fastq"
+    r2p = "${name}_R2_paired.fastq"
+    r2u = "${name}_R2_unpaired.fastq"
 
-    """
+    """  
     trimmomatic PE -phred33 \
     ${reads[0]} ${reads[1]} \
     $r1p $r1u $r2p $r2u \
     ILLUMINACLIP:$params.adapter:2:30:10 \
-    LEADING:3 TRAILING:3 SLIDINGWINDOW:5:20 MINLEN:36
+    LEADING:3 TRAILING:3 \
+    SLIDINGWINDOW:5:20 MINLEN:36
     """
+
 }
 
 

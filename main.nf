@@ -31,7 +31,8 @@ log.info """\
  * outputs four files. Each of the original raw read files are quality 
  * filtered and then split into two files, one where reads have their pair
  * found (*_paired.fastq) and one where reads lack their pair
- * (*_unpaired.fastq).  
+ * (*_unpaired.fastq). HybPiper requires the unpaired reads to be 
+ * concatenated into one file. 
  */
 process TRIMMOMATIC {
     publishDir "${params.outdir}/trimmed"
@@ -40,14 +41,15 @@ process TRIMMOMATIC {
     tuple val(name), path(reads)
     
     output:
-    tuple path(r1p), path(r1u), path(r2p), path(r2u)
+    tuple path(r1p), path(r2p), path(ru)
 
     script: 
     r1p = "${name}_R1_paired.fastq"
     r1u = "${name}_R1_unpaired.fastq"
     r2p = "${name}_R2_paired.fastq"
     r2u = "${name}_R2_unpaired.fastq"
-
+    ru  = "${name}_unpaired.fastq"
+    
     """  
     trimmomatic PE -phred33 \
     ${reads[0]} ${reads[1]} \
@@ -55,8 +57,10 @@ process TRIMMOMATIC {
     ILLUMINACLIP:$params.adapter:2:30:10 \
     LEADING:3 TRAILING:3 \
     SLIDINGWINDOW:5:20 MINLEN:36
-    """
 
+    cat $r1u $r2u > $ru
+    rm $r1u $r2u
+    """
 }
 
 
@@ -66,6 +70,23 @@ process TRIMMOMATIC {
  * HybPiper can utilize unpaired reads but requires them to be combined
  * into one file.
  */
+process CAT_UNPAIRED {
+    publishDir "${params.outdir}/trimmed"
+
+    input:
+    tuple path(r1p), path(r1u), path(r2p), path(r2u)
+
+    output:
+    tuple path(r1p), path(r2p), path(ru)
+
+    script:
+    """
+    
+    """
+
+
+}
+
 
 
 /*
@@ -73,8 +94,9 @@ process TRIMMOMATIC {
  */
 workflow {
     reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
-    //println ${params.outdir} + "trimmomatic"
+    
     TRIMMOMATIC(reads_pairs_ch)
+
 }
 
 

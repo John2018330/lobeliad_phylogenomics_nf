@@ -1,4 +1,4 @@
-# Test nextflow pipeline for lobeliad phylogenomics paper
+# Nextflow pipeline for lobeliad phylogenomics paper
 Making a nextflow pipeline to generate a coalescent species tree of Lobeliad taxa using Hyb-Seq data
 
 ## Workflow

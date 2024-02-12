@@ -27,7 +27,6 @@ Trimmomatic, FastQC, MultiQC??, HybPiper, MAFFT, trimAl, IQTree, Astral?
 ## To Do
 - [ ] write fastqc process
 - [ ] write multiqc process
-- [ ] add multiqc to docker image
 - [ ] add astral to docker image
 - [ ] add all params to nextflow file
 - [ ] docker engine only, no docker desktop
@@ -37,3 +36,4 @@ Trimmomatic, FastQC, MultiQC??, HybPiper, MAFFT, trimAl, IQTree, Astral?
 - [x] test docker image
 - [x] write concat unpaired process
 - [x] write trimmomatic process
+- [x] add multiqc to docker image

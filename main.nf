@@ -12,8 +12,8 @@
 params.reads = "$projectDir/data/luk_006_11_{R1,R2}.fastq"
 params.adapter = "$projectDir/TruSeq3-PE.fa"
 //params.baits_file = ""
-//params.samples_list = "$projectDir/samples_list.txt"
 params.outdir = "$projectDir/results"
+
 
 log.info """\
     ==========================
@@ -41,7 +41,7 @@ process TRIMMOMATIC {
     tuple val(name), path(reads)
     
     output:
-    tuple path(r1p), path(r2p), path(ru)
+    tuple val(name), path(r1p), path(r2p), path(ru)
 
     script: 
     r1p = "${name}_R1_paired.fastq"
@@ -66,19 +66,19 @@ process TRIMMOMATIC {
 
 
 /* 
- * STEP 1.1: COMBINED UNPAIRED FILES
- * HybPiper can utilize unpaired reads but requires them to be combined
- * into one file.
+ * STEP 1.1 Run FASTQC 
+ * Run FastQC on all samples to generate report on trimmomatic outputs for quality control
  */
 process CAT_UNPAIRED {
-    publishDir "${params.outdir}/trimmed"
+    publishDir "${params.outdir}/fast_multi_qc/fastqc"
 
     input:
-    tuple path(r1p), path(r1u), path(r2p), path(r2u)
+    // I think this should be flattened and just fed as one file at a time 
+    tuple val(name), path(r1p), path(r2p), path(r2u)
 
     output:
-    tuple path(r1p), path(r2p), path(ru)
-
+    path "${name}"
+    
     script:
     """
     
@@ -93,9 +93,20 @@ process CAT_UNPAIRED {
  * DEFINE WORKFLOW
  */
 workflow {
-    reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
+    //reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
     
-    TRIMMOMATIC(reads_pairs_ch)
+    // Input channel of read pairs
+    Channel 
+        .fromFilePairs(params.reads, checkIfExists: true)
+        .set { ch_read_pairs }
+
+
+    // Run trimmomatic on read_pairs_ch
+    // trimmed_ch = TRIMMOMATIC(reads_pairs_ch)
+    TRIMMOMATIC(
+        ch_read_pairs
+    )
+    .set { ch_trimmed_reads }
 
 }
 

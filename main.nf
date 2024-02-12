@@ -7,14 +7,8 @@
 
 
 /*
- * Required pipeline inputs and log introduction
+ * Log introduction
  */
-params.reads = "$projectDir/data/luk_006_11_{R1,R2}.fastq"
-params.adapter = "$projectDir/TruSeq3-PE.fa"
-//params.baits_file = ""
-params.outdir = "$projectDir/results"
-
-
 log.info """\
     ==========================
     - PHYLOGENOMICS WORKFLOW -
@@ -35,7 +29,7 @@ log.info """\
  * concatenated into one file. 
  */
 process TRIMMOMATIC {
-    publishDir "${params.outdir}/trimmed"
+    label 'process_low'
 
     input:
     tuple val(name), path(reads)
@@ -51,12 +45,14 @@ process TRIMMOMATIC {
     ru  = "${name}_unpaired.fastq"
     
     """  
-    trimmomatic PE -phred33 \
-    ${reads[0]} ${reads[1]} \
-    $r1p $r1u $r2p $r2u \
-    ILLUMINACLIP:$params.adapter:2:30:10 \
-    LEADING:3 TRAILING:3 \
-    SLIDINGWINDOW:5:20 MINLEN:36
+    trimmomatic PE \
+        -threads $task.cpus \
+        -phred33 \
+        ${reads[0]} ${reads[1]} \
+        $r1p $r1u $r2p $r2u \
+        ILLUMINACLIP:$params.trimmomatic_adapter:2:30:10 \
+        LEADING:3 TRAILING:3 \
+        SLIDINGWINDOW:5:20 MINLEN:36
 
     cat $r1u $r2u > $ru
     rm $r1u $r2u
@@ -69,15 +65,16 @@ process TRIMMOMATIC {
  * STEP 1.1 Run FASTQC 
  * Run FastQC on all samples to generate report on trimmomatic outputs for quality control
  */
-process CAT_UNPAIRED {
-    publishDir "${params.outdir}/fast_multi_qc/fastqc"
+
+process FASTQC{
+    label 'process_low'
 
     input:
-    // I think this should be flattened and just fed as one file at a time 
-    tuple val(name), path(r1p), path(r2p), path(r2u)
+    path(fastq)
 
     output:
-    path "${name}"
+    path("*.html"), emit: html
+    path("*.zip"),  emit: zip
     
     script:
     """
@@ -93,20 +90,26 @@ process CAT_UNPAIRED {
  * DEFINE WORKFLOW
  */
 workflow {
-    //reads_pairs_ch = Channel.fromFilePairs(params.reads, checkIfExists: true)
-    
+    //
     // Input channel of read pairs
+    //
     Channel 
-        .fromFilePairs(params.reads, checkIfExists: true)
+        .fromFilePairs("${params.reads}/*_{R1,R2}.*", checkIfExists: true)
         .set { ch_read_pairs }
 
 
+    //
     // Run trimmomatic on read_pairs_ch
-    // trimmed_ch = TRIMMOMATIC(reads_pairs_ch)
+    //
     TRIMMOMATIC(
         ch_read_pairs
     )
     .set { ch_trimmed_reads }
+
+
+    // Run FastQC on all trimmomatic outputs
+    //ch_trimmed_reads.flatten().view()
+
 
 }
 

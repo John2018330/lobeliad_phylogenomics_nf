@@ -70,7 +70,7 @@ process FASTQC{
     label 'process_low'
 
     input:
-    path(fastq)
+    tuple val(name), path(r1p), path(r2p), path(ru)
 
     output:
     path("*.html"), emit: html
@@ -78,10 +78,8 @@ process FASTQC{
     
     script:
     """
-    
+    fastqc ${r1p} ${r2p} ${ru}
     """
-
-
 }
 
 
@@ -106,16 +104,13 @@ workflow {
     )
     .set { ch_trimmed_reads }
 
-
+    //
     // Run FastQC on all trimmomatic outputs
-    //ch_trimmed_reads.flatten().view()
-
-
+    //
+    FASTQC(
+        ch_trimmed_reads
+    )
+    .set { ch_fastqc }
 }
-
-
-
-
-
 
 

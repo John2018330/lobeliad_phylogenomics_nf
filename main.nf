@@ -82,34 +82,61 @@ process FASTQC{
 }
 
 
+/* 
+ * Step 1.2 Run multiQC
+ * Collects the FastQC output from each sample and put them into a single report
+ */
 
-/*
+process MULTIQC{
+    label 'process_low'
+
+    input:
+    path '*'
+
+    output:
+    path 'multiqc_report.html'
+
+    script:
+    """
+    multiqc .
+    """
+}
+
+
+/* 
  * DEFINE WORKFLOW
  */
 workflow {
-    //
-    // Input channel of read pairs
-    //
+    /*
+     * Input channel of read pairs
+     */
     Channel 
         .fromFilePairs("${params.reads}/*_{R1,R2}.*", checkIfExists: true)
         .set { ch_read_pairs }
 
 
-    //
-    // Run trimmomatic on read_pairs_ch
-    //
+    /*
+     * Run trimmomatic on read_pairs_ch
+     */
     TRIMMOMATIC(
         ch_read_pairs
     )
     .set { ch_trimmed_reads }
 
-    //
-    // Run FastQC on all trimmomatic outputs
-    //
+
+    /*
+     * Run FastQC and then MultiQC on all trimmomatic outputs
+     */
     FASTQC(
         ch_trimmed_reads
     )
     .set { ch_fastqc }
+
+    MULTIQC(
+        ch_fastqc.zip.collect()
+    )
+
+    
 }
 
 

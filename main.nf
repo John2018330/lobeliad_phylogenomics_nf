@@ -38,6 +38,7 @@ process TRIMMOMATIC {
     tuple val(name), path(r1p), path(r2p), path(ru)
 
     script: 
+    def args = task.ext.args
     r1p = "${name}_R1_paired.fastq"
     r1u = "${name}_R1_unpaired.fastq"
     r2p = "${name}_R2_paired.fastq"
@@ -47,12 +48,10 @@ process TRIMMOMATIC {
     """  
     trimmomatic PE \
         -threads $task.cpus \
-        -phred33 \
         ${reads[0]} ${reads[1]} \
         $r1p $r1u $r2p $r2u \
         ILLUMINACLIP:$params.trimmomatic_adapter:2:30:10 \
-        LEADING:3 TRAILING:3 \
-        SLIDINGWINDOW:5:20 MINLEN:36
+        $args 
 
     cat $r1u $r2u > $ru
     rm $r1u $r2u

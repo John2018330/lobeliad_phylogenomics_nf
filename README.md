@@ -1,27 +1,29 @@
 # Nextflow pipeline for lobeliad phylogenomics paper
-Making a nextflow pipeline to generate a coalescent species tree of Lobeliad taxa using Hyb-Seq data
+Making a nextflow pipeline to generate a coalescent species tree of Lobeliad taxa using Hyb-Seq data. Using this data and software to learn nextflow and creating bioinformatics pipelines.
 
 ## Workflow
 ### Dependencies
-Trimmomatic, FastQC, MultiQC??, HybPiper, MAFFT, trimAl, IQTree, Astral?
+Trimmomatic, FastQC, MultiQC, HybPiper, MAFFT, trimAl, IQTree, Astral?
 
 ### Requirements
-- 'samples_list.txt': a list of all taxa or sample identifiers
-- Raw read pairs '*_{1,2}.fastq': raw reads 
-- 'Angio353.fasta': fasta file containing Angiosperms 353 target sequences for target enrichment. Use for luk test data 
-- 'supercontig_baits.fasta': fasta file containing modified campanula baits used for assembly. Use for lobeliad data
+#### Inputs
+- Folder containing or individual raw read pairs '*_{1,2}.fastq' 
+- Target file containing sequences used for target enrichment. For lobeliad data, `supercontig_baits.fasta` is used. For testing pipeline on luk data, `Angio_353.fasta` is used.
 - 'TruSeq3-PE.fa': fasta file containing adapteres to look for when using trimmomatic
+
+#### Outputs
+- `multiqc_report.html`: Quality Control report on raw reads after being pushed through trimmomatic
 
 
 ### Pipeline
 1. Raw Reads
-- Paired-end raw reads are collected in a single folder ready as input for the pipeline
+- Paired-end raw reads are collected in a single folder ready as input for the pipeline.
 
 2. Trimmomatic & Quality Control
-- Each raw read file is trimmed/quality filtered using Trimmomatic, producing one file for reads that have a pair and another for those that are left unpaired
-- The two unpaired read files per sample are concatenated into one file 
+- Each raw read file is trimmed/quality filtered using Trimmomatic. Trimmomatic takes as input a sample's paired end reads `R1, R2`, and for each paired read file produces one file for reads that have a pair found in the complmentary file `{R1, R2}_paired` and another for those that do not `{R1, R2}_unpaired`.  
+- The two unpaired read files per sample are concatenated into one file: `unpaired`.
 - FastQC is run on all of the paired/unpaired output files of Trimmomatic and outputs are stored in separate folder
-- MAYBE: MultiQC is run on all fastqc outputs to generate a single report on all data files 
+- MultiQC collects all the FastQC outputs to generate a single report on all data files 
 
 
 ## To Do

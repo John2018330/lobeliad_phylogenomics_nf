@@ -15,6 +15,7 @@ log.info """\
     ==========================
     reads        : ${params.reads}
     outdir       : ${params.outdir}
+    bait file    : ${params.target_file}
     """
     .stripIndent()
 
@@ -27,6 +28,7 @@ log.info """\
  * found (*_paired.fastq) and one where reads lack their pair
  * (*_unpaired.fastq). HybPiper requires the unpaired reads to be 
  * concatenated into one file. 
+ * Outputs in folder called ___
  */
 process TRIMMOMATIC {
     label 'process_low'
@@ -63,6 +65,7 @@ process TRIMMOMATIC {
 /* 
  * STEP 1.1 Run FASTQC 
  * Run FastQC on all samples to generate report on trimmomatic outputs for quality control
+ * Outputs in folder called ___
  */
 
 process FASTQC{
@@ -85,6 +88,7 @@ process FASTQC{
 /* 
  * Step 1.2 Run multiQC
  * Collects the FastQC output from each sample and put them into a single report
+ * Outputs in ____ folder
  */
 
 process MULTIQC{
@@ -103,6 +107,24 @@ process MULTIQC{
 }
 
 
+process ASSEMBLE {
+    label 'process_high'
+
+    input:
+    tuple val(name), path(r1p), path(r2p), path(ru)
+    path(target_file)
+     
+    output:
+    path(name)
+
+    script:
+    def args = task.ext.args
+    """
+    hybpiper assemble -t_dna $target_file -r $r1p $r2p --unpaired $ru --prefix $name --cpu $task.cpus $args
+    """
+}
+
+
 /* 
  * DEFINE WORKFLOW
  */
@@ -114,7 +136,11 @@ workflow {
         .fromFilePairs("${params.reads}/*_{R1,R2}.*", checkIfExists: true)
         .set { ch_read_pairs }
 
+    Channel
+        .of(params.target_file)
+        .set { ch_target_file }
 
+        
     /*
      * Run trimmomatic on read_pairs_ch
      */
@@ -136,7 +162,15 @@ workflow {
         ch_fastqc.zip.collect()
     )
 
-    
+
+    /*
+     * Use HybPiper to assemble raw reads to target file
+     */
+    ASSEMBLE(
+        //ch_trimmed_reads.concat(ch_target_file)
+        ch_trimmed_reads, params.target_file
+    ).set { ch_assemblies }
+    //ch_trimmed_reads.concat(ch_target_file).view()
 }
 
 

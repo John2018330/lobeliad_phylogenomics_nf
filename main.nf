@@ -33,6 +33,8 @@ log.info """\
 process TRIMMOMATIC {
     label 'process_low'
 
+    when: params.run_trimmomatic
+
     input:
     tuple val(name), path(reads)
     
@@ -70,6 +72,8 @@ process TRIMMOMATIC {
 
 process FASTQC{
     label 'process_low'
+    
+    when: run_qc_reports
 
     input:
     tuple val(name), path(r1p), path(r2p), path(ru)
@@ -93,6 +97,8 @@ process FASTQC{
 
 process MULTIQC{
     label 'process_low'
+
+    when: run_qc_reports
 
     input:
     path '*'
@@ -136,9 +142,9 @@ workflow {
         .fromFilePairs("${params.reads}/*_{R1,R2}.*", checkIfExists: true)
         .set { ch_read_pairs }
 
-    Channel
-        .of(params.target_file)
-        .set { ch_target_file }
+    //Channel
+    //    .of(params.target_file)
+    //    .set { ch_target_file }
 
         
     /*

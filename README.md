@@ -1,4 +1,6 @@
 # Nextflow pipeline for lobeliad phylogenomics paper
+!! Work in progress !!
+
 Making a nextflow pipeline to generate a coalescent species tree of Lobeliad taxa using Hyb-Seq data. Using this data and software to learn nextflow and creating bioinformatics pipelines.
 
 ## Workflow

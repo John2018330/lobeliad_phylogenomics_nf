@@ -3,5 +3,3 @@ work/
 results/
 .nextflow/
 .nextflow.log*
-Angio353.fasta
-supercontig_baits.fasta

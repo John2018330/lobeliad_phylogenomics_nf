@@ -35,6 +35,10 @@ Trimmomatic, FastQC, MultiQC, HybPiper, MAFFT, trimAl, IQTree, Astral?
 
 
 ## To Do
+- [ ] move process options to module.config
+- [ ] add profiles for standard (local) and sge (scc) execution
+- [ ] figure out running on SCC
+- [ ] figure out docker on SCC
 - [ ] hybpiper retrieve sequences process
 - [ ] hybpiper stats process
 - [ ] look up when: and take: for process/workflow

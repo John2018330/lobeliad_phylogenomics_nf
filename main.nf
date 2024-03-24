@@ -33,6 +33,9 @@ log.info """\
 process TRIMMOMATIC {
     label 'process_low'
 
+    conda "bioconda::trimmomatic=0.39"
+    //add docker option
+
     when: params.run_trimmomatic
 
     input:
@@ -72,7 +75,9 @@ process TRIMMOMATIC {
 
 process FASTQC{
     label 'process_low'
-    
+   
+    conda "bioconda::fastqc=0.12.1"
+
     when: run_qc_reports
 
     input:
@@ -98,6 +103,8 @@ process FASTQC{
 process MULTIQC{
     label 'process_low'
 
+    conda "bioconda::multiqc=1.20"
+
     when: run_qc_reports
 
     input:
@@ -116,6 +123,8 @@ process MULTIQC{
 process ASSEMBLE {
     label 'process_high'
 
+    conda "bioconda::hybpiper"
+    
     input:
     tuple val(name), path(r1p), path(r2p), path(ru)
     path(target_file)
